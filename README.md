@@ -1,20 +1,29 @@
-# Portal de Productos con Autenticación y Chat
+# Práctica 1: Portal de Productos con Autenticación y Chat
 
 Este proyecto es una aplicación web full-stack completa que integra un portal de gestión de productos (CRUD), un sistema de autenticación de usuarios basado en JWT con roles, y un chat en tiempo real.
 
-El proyecto cumple con todos los requisitos de la [Práctica 1](#) (enunciado de la tarea), incluyendo todas las **ampliaciones opcionales**:
-* Persistencia del historial del chat.
-* Interfaz de usuario con diseño moderno.
-* Subida de imágenes de producto (implementado con Cloudinary).
-* Despliegue en un servicio cloud (Render).
+El proyecto está desplegado en Render y utiliza MongoDB Atlas para la persistencia de datos.
+
+Enlace al repositorio: https://github.com/ikercelaya/Programaci-n-Web-I
 
 ---
 
-## 🚀 Demo en Vivo
+## 🚀 Demo en Vivo (Acceso a Render)
 
+**Enlace de la aplicación:**
 **[https://portal-app-practica1.onrender.com](https://portal-app-practica1.onrender.com)**
 
 *(Nota: El plan gratuito de Render puede "dormir" el servidor tras 15 minutos de inactividad. La primera carga puede tardar 30-50 segundos en arrancar.)*
+
+### Usuarios de Prueba (En Render)
+La base de datos de producción ha sido pre-cargada con los siguientes usuarios para pruebas:
+
+* **Administrador:**
+    * **Usuario:** `admin@test.com`
+    * **Contraseña:** `admin`
+* **Usuario Normal:**
+    * **Usuario:** `user@test.com`
+    * **Contraseña:** `user`
 
 ---
 
@@ -25,10 +34,9 @@ El proyecto cumple con todos los requisitos de la [Práctica 1](#) (enunciado de
     * **Usuario (`user`):** Puede ver productos y participar en el chat.
     * **Administrador (`admin`):** Puede crear, editar y eliminar productos.
 * **Gestión de Productos (CRUD):** Los administradores tienen un panel para gestionar el inventario.
-* **Subida de Imágenes a la Nube:** Las imágenes de los productos no se guardan en el servidor. Se suben directamente a **Cloudinary** usando `multer` y `multer-storage-cloudinary`, guardando únicamente la URL en la base de datos.
+* **Subida de Imágenes (Funcional en Local):** El administrador puede subir una imagen de producto desde su equipo, que se guarda en el servidor local.
 * **Chat en Tiempo Real:** Un chat global (estilo "lobby") implementado con **Socket.IO**.
 * **Persistencia de Mensajes:** El historial del chat se guarda en MongoDB y se carga cada vez que un usuario se conecta.
-* **Despliegue en Producción:** La aplicación está desplegada en **Render** (Web Service) y la base de datos en **MongoDB Atlas**.
 
 ---
 
@@ -42,50 +50,39 @@ El proyecto cumple con todos los requisitos de la [Práctica 1](#) (enunciado de
 | **Autenticación**| `jsonwebtoken` (JWT) | Creación y verificación de tokens de sesión. |
 | **Seguridad** | `bcrypt.js` | Hasheo de contraseñas de usuario. |
 | **Tiempo Real** | Socket.IO | Comunicación bidireccional para el chat. |
-| **Subida de Archivos**| `multer`, `multer-storage-cloudinary` | Procesamiento de subida de imágenes. |
+| **Subida de Archivos**| `multer` | Procesamiento de subida de imágenes al disco local. |
 | **Alojamiento (Cloud)**| **Render** | Despliegue del Web Service (Node.js). |
-| **Alojamiento (Media)**| **Cloudinary** | Almacenamiento y servicio de imágenes en la nube. |
 
 ---
 
-## 💡 Datos Interesantes y Flujo del Proyecto
+## 🧠 Decisiones Tomadas Durante el Desarrollo
 
-Este proyecto combina varias tecnologías clave. Aquí hay un resumen de cómo funcionan juntas:
+Esta sección describe las decisiones de arquitectura y tecnología tomadas para cumplir con los requisitos de la práctica.
 
-### 1. Flujo de Autenticación (JWT)
-La seguridad de las rutas y del chat se maneja vía tokens:
-1.  El usuario envía `email` y `password` a `/api/auth/login`.
-2.  El servidor verifica las credenciales con `bcrypt.compare()`.
-3.  Si es exitoso, genera un token JWT (`jsonwebtoken.sign()`) que contiene el `userId` y el `role`.
-4.  El cliente guarda este token en `localStorage`.
-5.  Para cada petición a rutas protegidas (ej. `GET /api/products`), el cliente añade el token al *header* `Authorization: Bearer ...`.
-6.  En el backend, el middleware `authenticateJWT` intercepta la petición, verifica el token (`jwt.verify()`) y, si es válido, permite el acceso.
+### 1. Autenticación: JWT vs. Sesiones de Express
+Aunque se podía implementar la autenticación con `express-session`, se optó por **JSON Web Tokens (JWT)** por varias razones clave:
 
-### 2. Flujo de Subida de Imágenes (Cloudinary)
-Para evitar los problemas de almacenamiento de archivos en despliegues en la nube:
-1.  El admin rellena el formulario de producto y selecciona un archivo de imagen.
-2.  El frontend envía la petición como `FormData`.
-3.  En el backend, la ruta `POST /api/products` usa `multer` configurado con `CloudinaryStorage`.
-4.  `multer` intercepta el archivo y lo sube directamente a la API de Cloudinary, sin tocar el disco del servidor de Render.
-5.  Cloudinary devuelve la URL segura (`https://res.cloudinary.com/...`) y el `imageId`.
-6.  Estos dos campos se guardan en el documento del producto en MongoDB Atlas.
+* **Sin Estado (Stateless):** El servidor no necesita almacenar información de la sesión en su memoria. Simplemente valida la firma del token en cada petición.
+* **Escalabilidad:** Al ser *stateless*, el proyecto es mucho más fácil de desplegar en plataformas en la nube (como Render) y podría escalarse horizontalmente (con múltiples servidores) sin problemas.
+* **Flexibilidad:** El mismo token sirve para autenticar tanto las peticiones a la **API REST** (ej. `/api/products`) como las conexiones de **Socket.IO**.
 
-### 3. Flujo del Chat Persistente (Socket.IO + MongoDB)
-1.  El cliente intenta conectarse a Socket.IO enviando su token JWT.
-2.  Un middleware de Socket.IO en el servidor (`io.use()`) intercepta la conexión, verifica el JWT y, si es válido, permite la conexión.
-3.  Al conectarse, el servidor busca en la colección `chatmessages` de MongoDB y emite los últimos 50 mensajes al nuevo usuario (`socket.emit('chat history', ...)`).
-4.  Cuando un usuario envía un mensaje (`socket.on('chat message', ...)`), el servidor primero lo guarda en la base de datos (creando un `new ChatMessage`) y luego lo retransmite a *todos* los usuarios conectados (`io.emit(...)`).
+**Flujo de implementación:** El cliente guarda el token en `localStorage` tras el login y lo envía en el *header* `Authorization` en cada petición HTTP y en el paquete `auth` al conectarse a Socket.IO.
 
----
+### 2. La Decisión Crítica: Subida de Imágenes (Disco Local vs. Cloud)
+Esta fue una decisión técnica clave y un importante punto de aprendizaje durante el despliegue.
 
-## ⚙️ Cómo Ejecutarlo Localmente
+* **Implementación Local:** Se implementó la subida de imágenes usando `multer` para guardar los archivos en una carpeta local del servidor (`/src/public/uploads`). Esta solución **funciona perfectamente** cuando se ejecuta el proyecto en un entorno de desarrollo local (`npm start`).
+* **Problema en la Nube (Render):** Se ha constatado que al desplegar en Render, esta funcionalidad **deja de ser viable**. Las plataformas en la nube como Render tienen un **"sistema de archivos efímero"**: cualquier archivo subido (como una imagen de producto) se borra a los pocos minutos o la próxima vez que el servidor se reinicia. El plan gratuito de Render ya no ofrece "Discos Persistentes".
+* **Conclusión (Para Evaluación):** Se ha demostrado la capacidad de subir archivos localmente y se ha identificado la problemática del despliegue en la nube. Para que esta función sea persistente en producción, la decisión correcta (como siguiente paso) sería refactorizar el código para usar un servicio de almacenamiento externo como **Cloudinary** o **AWS S3**, guardando únicamente la URL en la base de datos. Por esta razón, la subida de imágenes **no es funcional en la demo de Render**, aunque la lógica del backend para el resto del CRUD (crear producto con texto, editarlo, etc.) funciona perfectamente conectada a la base de datos de Atlas.
 
-### Prerrequisitos
-* Node.js (v16 o superior)
-* MongoDB (local o una cuenta gratuita en [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
-* Una cuenta gratuita en [Cloudinary](https://cloudinary.com/)
+### 3. Persistencia del Chat
+Para cumplir con la ampliación opcional, el chat no podía ser efímero (donde los mensajes desaparecen al refrescar).
 
-### 1. Clonar el Repositorio
-```bash
-git clone https://[TU_REPOSITORIO_DE_GITHUB].git
-cd [NOMBRE_DEL_PROYECTO]
+* **Decisión:** Se creó un nuevo modelo en Mongoose (`ChatMessage.js`).
+* **Implementación:**
+    1.  **Guardar:** Cuando el servidor recibe un evento `chat message` de un cliente, primero crea un nuevo documento `ChatMessage` y lo guarda en MongoDB.
+    2.  **Cargar:** Cuando un usuario se conecta (`io.on('connection')`), el servidor realiza una consulta a MongoDB (`ChatMessage.find()`), obtiene los últimos 50 mensajes y se los emite a *ese* cliente en particular (`socket.emit('chat history', ...)`).
+
+### 4. Elección de la Plataforma de Despliegue: Render vs. Vercel
+* **Vercel** es increíble para frontends (React, Vue) y sitios estáticos, pero es **incompatible** con este proyecto. Su arquitectura *serverless* (funciones que se apagan) no soporta las conexiones persistentes que **Socket.IO necesita** para funcionar.
+* **Render** fue la elección ideal porque su "Web Service" gratuito funciona como un servidor tradicional (persistente), lo que permite que las conexiones de Socket.IO se mantengan activas.
