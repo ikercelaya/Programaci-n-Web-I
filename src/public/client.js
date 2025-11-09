@@ -1,14 +1,9 @@
-// src/public/client.js
-
-// --- Variables Globales y Estado ---
 let appState = {
     token: localStorage.getItem('token'),
     user: JSON.parse(localStorage.getItem('user')) || null,
     socket: null,
     editingProductId: null 
 };
-
-// --- Funciones de Utilidad ---
 
 function saveAuthState(token, user) {
     appState.token = token;
@@ -57,9 +52,7 @@ function displayFeedback(elementId, message, type) {
     }
 }
 
-// --- Lógica de Vistas (DOMContentLoaded) ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Lógica de la Navbar (se aplica a todas las páginas)
     setupNavbar();
     
     const path = window.location.pathname;
@@ -70,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- Lógica de Navbar (NUEVA) ---
 function setupNavbar() {
     const guestNav = document.getElementById('guest-nav');
     const userNav = document.getElementById('user-nav');
@@ -78,19 +70,16 @@ function setupNavbar() {
     const logoutBtn = document.getElementById('logout-btn');
 
     if (appState.token && appState.user) {
-        // Logueado
         guestNav.style.display = 'none';
         userNav.style.display = 'flex';
         chatLink.style.display = 'block';
         document.getElementById('welcome-msg').textContent = `Hola, ${appState.user.email} (${appState.user.role})`;
         logoutBtn.addEventListener('click', handleLogout);
     } else {
-        // No logueado
         guestNav.style.display = 'flex';
         userNav.style.display = 'none';
         chatLink.style.display = 'none';
         
-        // Asignar eventos a botones de login/registro si existen en la página
         const showLoginBtn = document.getElementById('show-login-btn');
         const showRegisterBtn = document.getElementById('show-register-btn');
         if (showLoginBtn && showRegisterBtn) {
@@ -105,35 +94,28 @@ function handleLogout() {
     if (appState.socket) {
         appState.socket.disconnect();
     }
-    window.location.href = '/'; // Redirigir al inicio (página de login)
+    window.location.href = '/';
 }
 
-// ===========================================
-// LÓGICA PARA index.html (Login, Registro, Productos)
-// ===========================================
 function initIndexPage() {
     const authPage = document.getElementById('auth-page');
     const productsPage = document.getElementById('products-page');
     
     if (appState.token && appState.user) {
-        // Logueado -> Mostrar productos
         authPage.style.display = 'none';
         productsPage.style.display = 'block';
         setupProductsPage();
     } else {
-        // No logueado -> Mostrar autenticación
         authPage.style.display = 'flex';
         productsPage.style.display = 'none';
         setupAuthForms();
     }
 }
 
-// --- Lógica de Autenticación (index.html) ---
 function setupAuthForms() {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
 
-    // Switches entre login y registro
     document.getElementById('auth-switch-to-register').addEventListener('click', (e) => {
         e.preventDefault();
         showAuthView('register-view');
@@ -143,7 +125,6 @@ function setupAuthForms() {
         showAuthView('login-view');
     });
 
-    // Handler de Login
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('login-email').value;
@@ -160,13 +141,12 @@ function setupAuthForms() {
             }
             const data = await response.json();
             saveAuthState(data.token, data.user);
-            window.location.reload(); // Recargar para que initIndexPage haga su magia
+            window.location.reload();
         } catch (err) {
             displayFeedback('login-error', err.message, 'error');
         }
     });
 
-    // Handler de Registro
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('register-email').value;
@@ -188,7 +168,6 @@ function setupAuthForms() {
         }
     });
 
-    // Mostrar login por defecto
     showAuthView('login-view');
 }
 
@@ -197,7 +176,6 @@ function showAuthView(viewId) {
     document.getElementById('register-view').style.display = (viewId === 'register-view') ? 'block' : 'none';
 }
 
-// --- Lógica de la Página de Productos (index.html) ---
 function setupProductsPage() {
     const adminPanel = document.getElementById('admin-panel');
     
@@ -225,11 +203,9 @@ function setupAdminPanel() {
         }
     });
 
-    // Configurar el formulario (lógica de subida de imagen, etc.)
     setupProductForm();
 }
 
-// --- Lógica de Productos (CRUD) ---
 async function loadProducts() {
     const productList = document.getElementById('product-list');
     productList.innerHTML = '<p class="feedback-message">Cargando productos...</p>';
@@ -268,7 +244,6 @@ async function loadProducts() {
             productList.appendChild(li);
         });
 
-        // Añadir event listeners a los botones de admin
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const product = products.find(p => p._id === btn.dataset.id);
@@ -291,7 +266,6 @@ function setupProductForm() {
     const imagePreview = document.getElementById('image-preview');
     const clearImageBtn = document.getElementById('clear-image-btn');
 
-    // Previsualización de la imagen
     productImageInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -307,7 +281,6 @@ function setupProductForm() {
         }
     });
 
-    // Botón para quitar la imagen
     clearImageBtn.addEventListener('click', () => {
         productImageInput.value = ''; 
         imagePreview.src = '#';
@@ -317,7 +290,6 @@ function setupProductForm() {
         }
     });
 
-    // Envío del formulario (Crear/Editar)
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = appState.editingProductId; 
@@ -353,7 +325,7 @@ function setupProductForm() {
     });
 
     document.getElementById('cancel-edit-btn').addEventListener('click', resetProductForm);
-    resetProductForm(); // Asegurarse de que el formulario está limpio al inicio
+    resetProductForm();
 }
 
 function populateProductForm(product) {
@@ -373,12 +345,10 @@ function populateProductForm(product) {
     document.getElementById('product-image').value = '';
     document.getElementById('product-form').dataset.clearImage = 'false';
 
-    // Rellenar formulario y mostrarlo
     document.getElementById('form-title').textContent = 'Editar Producto';
     document.getElementById('submit-product-btn').innerHTML = '<i class="fas fa-save"></i> Actualizar Producto';
     document.getElementById('cancel-edit-btn').style.display = 'inline-block';
     
-    // Abrir el panel colapsable si está cerrado
     const formContainer = document.getElementById('admin-form-container');
     if (formContainer.style.display === 'none') {
         document.getElementById('admin-toggle-btn').click();
@@ -409,12 +379,7 @@ async function deleteProduct(id) {
     }
 }
 
-
-// ===========================================
-// LÓGICA PARA chat.html
-// ===========================================
 function initChatPage() {
-    // Si no está logueado, redirigir al inicio
     if (!appState.token || !appState.user) {
         alert('Necesitas iniciar sesión para acceder al chat.');
         window.location.href = '/';
@@ -436,7 +401,6 @@ function initChatPage() {
         console.log('Conectado al chat con ID:', appState.socket.id);
     });
     
-    // Cargar historial de chat
     appState.socket.on('chat history', (messages) => {
         const messagesUl = document.getElementById('messages');
         messagesUl.innerHTML = ''; 
@@ -446,12 +410,10 @@ function initChatPage() {
         document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
     });
 
-    // Recibir nuevos mensajes
     appState.socket.on('chat message', (data) => {
         addMessageToList(data.message, data.user);
     });
 
-    // Enviar mensaje
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         if (input.value.trim()) { 

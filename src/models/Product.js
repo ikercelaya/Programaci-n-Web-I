@@ -1,4 +1,3 @@
-// src/models/Product.js
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
@@ -21,8 +20,6 @@ const productSchema = new mongoose.Schema({
         required: true,
         min: 0
     },
-    // *¡MODIFICADO!* imageUrl ya no tiene default ni es requerido aquí,
-    // será manejado por el middleware de Multer.
     imageUrl: { 
         type: String
     }
