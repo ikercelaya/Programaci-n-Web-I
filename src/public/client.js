@@ -221,7 +221,10 @@ async function loadProducts() {
             const li = document.createElement('li');
             li.className = 'product-card'; 
             
+            // --- ¡ESTA ES LA LÓGICA IMPORTANTE! ---
+            // product.imageUrl ya es la URL de Cloudinary
             const imageUrl = product.imageUrl ? product.imageUrl : 'https://via.placeholder.com/300?text=Sin+Imagen';
+            
             li.innerHTML = `
                 <div class="product-card-image">
                     <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(product.name)}">
