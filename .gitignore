@@ -1,0 +1,8 @@
+# Dependencias
+node_modules
+
+# Archivo de variables de entorno locales
+.env
+
+# Carpeta de subidas locales (no la de Render)
+/src/public/uploads

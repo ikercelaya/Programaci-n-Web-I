@@ -1,6 +1,7 @@
-module.exports = {
+require('dotenv').config();
 
-    JWT_SECRET: 'tu_clave_secreta_muy_segura_aqui_12345',
-    
-    MONGO_URI: 'mongodb://localhost:27017/portalProductos'
+module.exports = {
+    MONGO_URI: process.env.MONGO_URI,
+    JWT_SECRET: process.env.JWT_SECRET,
+    UPLOADS_DIR: process.env.UPLOADS_DIR || 'src/public/uploads'
 };

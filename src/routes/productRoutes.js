@@ -4,12 +4,13 @@ const { authenticateJWT, checkAdmin } = require('../middleware/authenticateJWT')
 const multer = require('multer'); 
 const path = require('path');     
 const fs = require('fs');         
+const config = require('../config'); 
 
 const router = express.Router();
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadPath = path.join(__dirname, '../public/uploads');
+        const uploadPath = config.UPLOADS_DIR; 
         fs.mkdirSync(uploadPath, { recursive: true });
         cb(null, uploadPath);
     },
@@ -31,6 +32,7 @@ const upload = multer({
     fileFilter: fileFilter,
     limits: { fileSize: 1024 * 1024 * 5 } 
 });
+
 
 router.get('/', authenticateJWT, async (req, res) => {
     try {
@@ -66,7 +68,7 @@ router.put('/:id', [authenticateJWT, checkAdmin, upload.single('productImage')],
         if (req.file) {
             const oldProduct = await Product.findById(req.params.id);
             if (oldProduct && oldProduct.imageUrl) {
-                const oldImagePath = path.join(__dirname, '../public', oldProduct.imageUrl);
+                const oldImagePath = path.join(config.UPLOADS_DIR, path.basename(oldProduct.imageUrl));
                 if (fs.existsSync(oldImagePath)) {
                     fs.unlinkSync(oldImagePath);
                 }
@@ -75,7 +77,7 @@ router.put('/:id', [authenticateJWT, checkAdmin, upload.single('productImage')],
         } else if (req.body.clearImage === 'true') { 
             const oldProduct = await Product.findById(req.params.id);
             if (oldProduct && oldProduct.imageUrl) {
-                const oldImagePath = path.join(__dirname, '../public', oldProduct.imageUrl);
+                const oldImagePath = path.join(config.UPLOADS_DIR, path.basename(oldProduct.imageUrl));
                 if (fs.existsSync(oldImagePath)) {
                     fs.unlinkSync(oldImagePath);
                 }
@@ -108,7 +110,7 @@ router.delete('/:id', [authenticateJWT, checkAdmin], async (req, res) => {
         }
 
         if (product.imageUrl) {
-            const imagePath = path.join(__dirname, '../public', product.imageUrl);
+            const imagePath = path.join(config.UPLOADS_DIR, path.basename(product.imageUrl));
             if (fs.existsSync(imagePath)) {
                 fs.unlinkSync(imagePath);
             }

@@ -4,6 +4,7 @@ const http = require('http');
 const { Server } = require("socket.io");
 const jwt = require('jsonwebtoken');
 const config = require('./config'); 
+const path = require('path');
 
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -16,16 +17,16 @@ mongoose.connect(config.MONGO_URI)
     .then(() => console.log('Conectado a MongoDB'))
     .catch(err => console.error('Error al conectar a MongoDB:', err));
 
-app.use(express.json());
-app.use(express.static('src/public')); 
+app.use(express.json()); 
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/uploads', express.static('src/public/uploads')); 
+app.use('/uploads', express.static(config.UPLOADS_DIR)); 
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 
 app.get('/chat.html', (req, res) => {
-    res.sendFile(__dirname + '/public/chat.html');
+    res.sendFile(path.join(__dirname, 'public/chat.html'));
 });
 
 io.use((socket, next) => {
@@ -75,6 +76,7 @@ io.on('connection', async (socket) => {
         io.emit('chat message', { user: 'Sistema', message: `${socket.user.email} ha abandonado el chat.` });
     });
 });
+
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
