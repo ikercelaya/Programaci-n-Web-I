@@ -4,7 +4,7 @@ const http = require('http');
 const { Server } = require("socket.io");
 const jwt = require('jsonwebtoken');
 const config = require('./config'); 
-const path = require('path');
+const path = require('path'); 
 
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -18,9 +18,7 @@ mongoose.connect(config.MONGO_URI)
     .catch(err => console.error('Error al conectar a MongoDB:', err));
 
 app.use(express.json()); 
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/uploads', express.static(config.UPLOADS_DIR)); 
+app.use(express.static(path.join(__dirname, 'public'))); 
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);

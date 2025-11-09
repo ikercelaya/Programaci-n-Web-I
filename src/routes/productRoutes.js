@@ -2,21 +2,24 @@ const express = require('express');
 const Product = require('../models/Product');
 const { authenticateJWT, checkAdmin } = require('../middleware/authenticateJWT');
 const multer = require('multer'); 
-const path = require('path');     
-const fs = require('fs');         
-const config = require('../config'); 
+const { v2: cloudinary } = require('cloudinary'); 
+const { CloudinaryStorage } = require('multer-storage-cloudinary'); 
+const config = require('../config');
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = config.UPLOADS_DIR; 
-        fs.mkdirSync(uploadPath, { recursive: true });
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
+cloudinary.config({
+  cloud_name: config.CLOUDINARY_CLOUD_NAME,
+  api_key: config.CLOUDINARY_API_KEY,
+  api_secret: config.CLOUDINARY_API_SECRET
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'portal-productos', 
+    allowed_formats: ['jpg', 'png', 'jpeg', 'gif']
+  }
 });
 
 const fileFilter = (req, file, cb) => {
@@ -28,7 +31,6 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({ 
-    storage: storage,
     fileFilter: fileFilter,
     limits: { fileSize: 1024 * 1024 * 5 } 
 });
@@ -47,9 +49,10 @@ router.post('/', [authenticateJWT, checkAdmin, upload.single('productImage')], a
     try {
         const { name, description, price, stock } = req.body;
         
-        const imageUrl = req.file ? `/uploads/${req.file.filename}` : null; 
+        const imageUrl = req.file ? req.file.path : null; 
+        const imageId = req.file ? req.file.filename : null; 
 
-        const product = new Product({ name, description, price, stock, imageUrl });
+        const product = new Product({ name, description, price, stock, imageUrl, imageId });
         await product.save();
         res.status(201).json(product);
     } catch (error) {
@@ -65,24 +68,21 @@ router.put('/:id', [authenticateJWT, checkAdmin, upload.single('productImage')],
         const { name, description, price, stock } = req.body;
         let updateData = { name, description, price, stock };
 
+        const oldProduct = await Product.findById(req.params.id);
+
         if (req.file) {
-            const oldProduct = await Product.findById(req.params.id);
-            if (oldProduct && oldProduct.imageUrl) {
-                const oldImagePath = path.join(config.UPLOADS_DIR, path.basename(oldProduct.imageUrl));
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
+            if (oldProduct && oldProduct.imageId) {
+                await cloudinary.uploader.destroy(oldProduct.imageId);
             }
-            updateData.imageUrl = `/uploads/${req.file.filename}`;
+            updateData.imageUrl = req.file.path;
+            updateData.imageId = req.file.filename;
+
         } else if (req.body.clearImage === 'true') { 
-            const oldProduct = await Product.findById(req.params.id);
-            if (oldProduct && oldProduct.imageUrl) {
-                const oldImagePath = path.join(config.UPLOADS_DIR, path.basename(oldProduct.imageUrl));
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
+            if (oldProduct && oldProduct.imageId) {
+                await cloudinary.uploader.destroy(oldProduct.imageId);
             }
-            updateData.imageUrl = null; 
+            updateData.imageUrl = null;
+            updateData.imageId = null;
         }
 
         const product = await Product.findByIdAndUpdate(
@@ -109,11 +109,8 @@ router.delete('/:id', [authenticateJWT, checkAdmin], async (req, res) => {
             return res.status(404).send('Producto no encontrado');
         }
 
-        if (product.imageUrl) {
-            const imagePath = path.join(config.UPLOADS_DIR, path.basename(product.imageUrl));
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
-            }
+        if (product.imageId) {
+            await cloudinary.uploader.destroy(product.imageId);
         }
 
         res.send('Producto eliminado con éxito');
