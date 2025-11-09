@@ -1,0 +1,750 @@
+/* src/public/styles.css */
+
+/* --- Importación de Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');
+
+/* --- Variables Globales (PALETA PROFESIONAL MEJORADA) --- */
+:root {
+    /* Colores principales */
+    --color-primary: #4361ee;
+    --color-primary-dark: #3a56d4;
+    --color-primary-light: #4895ef;
+    --color-secondary: #7209b7;
+    --color-danger: #f72585;
+    --color-warning: #fca311;
+    --color-success: #4cc9f0;
+    
+    /* Paleta de Navbar (Oscuro/Elegante) */
+    --color-navbar-bg: #1a1d29;
+    --color-navbar-bg-transparent: rgba(26, 29, 41, 0.95);
+    --color-navbar-border: #2d3246;
+    --color-navbar-text: #f8f9fa;
+    --color-navbar-text-muted: #a8b1c7;
+    --color-navbar-hover: rgba(255, 255, 255, 0.05);
+
+    /* Paleta de Cuerpo (Claro/Profesional) */
+    --color-bg-body: #f5f7fb;
+    --color-bg-card: #ffffff;
+    --color-bg-card-hover: #fafbff;
+    --color-border: #e2e8f0;
+    --color-border-light: #f1f5f9;
+    --color-text-dark: #1e293b;
+    --color-text-muted: #64748b;
+    --color-text-light: #94a3b8;
+    
+    /* Sombras mejoradas */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    --border-radius: 10px;
+    --border-radius-sm: 6px;
+    --border-radius-lg: 16px;
+    --font-primary: 'Inter', sans-serif;
+    --font-heading: 'Poppins', sans-serif;
+    
+    /* Transiciones */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
+    --transition-slow: 0.4s ease;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-primary);
+    background-color: var(--color-bg-body);
+    color: var(--color-text-dark);
+    line-height: 1.6;
+    padding-top: 80px;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+a {
+    text-decoration: none;
+    color: var(--color-primary);
+    transition: color var(--transition-fast);
+}
+a:hover {
+    color: var(--color-primary-dark);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+/* --- Barra de Navegación (Panel Horizontal Superior) --- */
+.app-header {
+    background: var(--color-navbar-bg-transparent);
+    backdrop-filter: blur(10px);
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-navbar-border);
+    box-shadow: var(--shadow-md);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: 80px;
+    transition: all var(--transition-normal);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+/* FIX DE ALINEACIÓN - CORREGIDO */
+.header-right,
+#guest-nav,
+#user-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.app-header .logo {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-navbar-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.app-header .logo i {
+    color: var(--color-primary);
+    font-size: 1.8rem;
+}
+
+/* CORRECCIÓN CRÍTICA: Asegurar que todos los enlaces de navegación tengan el mismo display */
+.app-header .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    align-items: center; /* Asegura alineación vertical */
+}
+
+/* CORRECCIÓN: Aplicar display: block a TODOS los enlaces de navegación */
+.app-header .nav-links a {
+    display: block; /* Esto asegura que todos los enlaces tengan el mismo display */
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-navbar-text-muted);
+    padding: 0.75rem 0.5rem;
+    border-radius: var(--border-radius-sm);
+    transition: all var(--transition-normal);
+    position: relative;
+    line-height: 1.2; /* Asegura consistencia en altura de línea */
+}
+.app-header .nav-links a:hover,
+.app-header .nav-links a.active {
+    color: var(--color-navbar-text);
+    background-color: var(--color-navbar-hover);
+}
+.app-header .nav-links a.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0.5rem;
+    right: 0.5rem;
+    height: 2px;
+    background: var(--color-primary);
+    border-radius: 2px;
+}
+
+#welcome-msg {
+    font-weight: 500;
+    color: var(--color-navbar-text-muted);
+    margin-right: 0.5rem;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+/* --- Botones Mejorados --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+.btn i {
+    margin-right: 8px;
+    font-size: 1.1rem;
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    box-shadow: 0 4px 6px rgba(67, 97, 238, 0.25);
+}
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    box-shadow: 0 6px 8px rgba(67, 97, 238, 0.35);
+}
+
+/* Botón 'outline' mejorado para fondo oscuro */
+.btn-outline {
+    background-color: transparent;
+    color: var(--color-navbar-text);
+    border-color: var(--color-navbar-border);
+}
+.btn-outline:hover {
+    background-color: var(--color-navbar-text);
+    color: var(--color-navbar-bg);
+}
+
+.btn-danger {
+    background-color: var(--color-danger);
+    color: #ffffff;
+    box-shadow: 0 4px 6px rgba(247, 37, 133, 0.25);
+}
+.btn-danger:hover {
+    background-color: #e1156d;
+    box-shadow: 0 6px 8px rgba(247, 37, 133, 0.35);
+}
+.btn-warning {
+    background-color: var(--color-warning);
+    color: var(--color-text-dark);
+    box-shadow: 0 4px 6px rgba(252, 163, 17, 0.25);
+}
+.btn-warning:hover {
+    background-color: #e59400;
+    box-shadow: 0 6px 8px rgba(252, 163, 17, 0.35);
+}
+.btn-secondary {
+    background-color: #64748b;
+    color: #ffffff;
+    box-shadow: 0 4px 6px rgba(100, 116, 139, 0.25);
+}
+.btn-secondary:hover {
+    background-color: #475569;
+    box-shadow: 0 6px 8px rgba(100, 116, 139, 0.35);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+/* --- Tarjetas (Estilo mejorado) --- */
+.card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all var(--transition-normal);
+}
+.card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary-light);
+}
+
+.card-header {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border-light);
+}
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-dark);
+}
+.card-subtitle {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+}
+
+/* --- Página de Autenticación (Login/Registro) --- */
+#auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 4rem;
+    min-height: calc(100vh - 80px);
+}
+.auth-card {
+    width: 100%;
+    max-width: 450px;
+    padding: 3rem;
+    border: none;
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--border-radius-lg);
+}
+.auth-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--color-text-dark);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* --- Formularios Mejorados --- */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+.form-control {
+    width: 100%;
+    padding: 0.85rem 1.2rem;
+    font-size: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    background-color: var(--color-bg-body);
+    color: var(--color-text-dark);
+    transition: all var(--transition-normal);
+}
+.form-control::placeholder {
+    color: var(--color-text-light);
+}
+.form-control:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    outline: none;
+    background-color: var(--color-bg-card);
+}
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+input[type="file"].form-control {
+    padding: 0.6rem 1rem;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+}
+.auth-switch a {
+    font-weight: 600;
+}
+
+/* --- Mensajes de Feedback Mejorados --- */
+.feedback-message {
+    text-align: center;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-top: 1.5rem;
+    font-weight: 500;
+    border-left: 4px solid transparent;
+}
+.feedback-message.error {
+    background-color: rgba(247, 37, 133, 0.1);
+    color: #b7155a;
+    border-left-color: var(--color-danger);
+}
+.feedback-message.success {
+    background-color: rgba(76, 201, 240, 0.1);
+    color: #0d8bb8;
+    border-left-color: var(--color-success);
+}
+
+/* --- Página de Productos (Admin Panel y Lista) --- */
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--color-text-dark);
+    position: relative;
+    padding-bottom: 0.75rem;
+}
+.page-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    border-radius: 2px;
+}
+
+/* Panel de Admin (Colapsable) */
+#admin-panel {
+    border: none;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+}
+#admin-toggle-btn {
+    width: 100%;
+    font-size: 1.1rem;
+    font-family: var(--font-heading);
+    padding: 1.25rem;
+    justify-content: space-between;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    color: white;
+    border: none;
+}
+#admin-toggle-btn i.toggle-icon {
+    transition: transform var(--transition-normal);
+    margin-right: 0;
+}
+#admin-toggle-btn.collapsed i.toggle-icon {
+    transform: rotate(-90deg);
+}
+
+#admin-form-container {
+    padding: 2rem;
+}
+#image-preview-container {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border: 2px dashed var(--color-border);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    background-color: var(--color-bg-body);
+    transition: all var(--transition-normal);
+}
+#image-preview-container:hover {
+    border-color: var(--color-primary);
+    background-color: rgba(67, 97, 238, 0.05);
+}
+#image-preview {
+    max-width: 180px;
+    max-height: 180px;
+    display: block;
+    margin: 0 auto 10px auto;
+    border-radius: var(--border-radius);
+    object-fit: contain;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Lista de Productos Mejorada */
+#product-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.product-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all var(--transition-normal);
+    height: 100%;
+}
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-primary-light);
+}
+
+.product-card-image {
+    width: 100%;
+    height: 240px;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+.product-card-image::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--color-border) 50%, transparent 100%);
+}
+.product-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform var(--transition-normal);
+}
+.product-card:hover .product-card-image img {
+    transform: scale(1.05);
+}
+
+.product-card-content {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.product-card-content strong {
+    font-size: 1.4rem;
+    font-family: var(--font-heading);
+    color: var(--color-text-dark);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+.product-card-content .price-stock {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.product-card-content .price-stock span {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    background: var(--color-bg-body);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+}
+.product-card-content p {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+.product-card-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: auto;
+}
+.product-card-actions .btn {
+    flex: 1;
+    font-size: 0.9rem;
+}
+
+
+/* --- Página del Chat Mejorada --- */
+#chat-container {
+    height: 65vh;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-card);
+    border-radius: var(--border-radius);
+    overflow-y: auto;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm) inset;
+}
+#messages {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+#messages li {
+    padding: 0.85rem 1.4rem;
+    border-radius: 18px;
+    max-width: 75%;
+    word-wrap: break-word;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    box-shadow: var(--shadow-sm);
+    animation: messageAppear 0.3s ease;
+}
+@keyframes messageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+#messages li:not(.message-self):not(.message-system) {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    color: var(--color-text-dark);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+#messages li:not(.message-self):not(.message-system) strong {
+    color: var(--color-primary);
+    font-size: 0.85rem;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+#messages li.message-self {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: #ffffff;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+#messages li.message-self strong {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.85rem;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+#messages li.message-system {
+    background-color: #fff3cd;
+    color: #856404;
+    font-style: italic;
+    font-size: 0.85rem;
+    align-self: center;
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    max-width: 90%;
+    text-align: center;
+}
+
+#chat-form {
+    display: flex;
+    gap: 0.75rem;
+}
+#chat-form .form-control {
+    flex-grow: 1;
+}
+
+/* --- Responsive Design Mejorado --- */
+@media (max-width: 1024px) {
+    .container {
+        max-width: 100%;
+    }
+    #product-list {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 70px;
+    }
+    .app-header {
+        flex-direction: row;
+        padding: 0 1rem;
+        height: 70px;
+    }
+    .header-left {
+        gap: 1rem;
+    }
+    .app-header .logo {
+        font-size: 1.3rem;
+    }
+    .app-header .logo i {
+        font-size: 1.4rem;
+    }
+    .app-header .nav-links {
+        gap: 0.75rem;
+    }
+    .app-header .nav-links a {
+        padding: 0.5rem 0.3rem;
+        font-size: 0.9rem;
+    }
+    .header-right {
+        gap: 0.5rem;
+    }
+    #welcome-msg {
+        display: none;
+    }
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .container {
+        margin-top: 1rem;
+        padding: 0 1rem;
+    }
+    .auth-card {
+        padding: 2rem 1.5rem;
+        margin: 0 1rem;
+    }
+    #product-list {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .page-title {
+        font-size: 2rem;
+    }
+    #messages li {
+        max-width: 85%;
+    }
+}
+
+@media (max-width: 576px) {
+    .app-header .nav-links {
+        display: none;
+    }
+    .header-right {
+        gap: 0.4rem;
+    }
+    .btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    .btn i {
+        margin-right: 4px;
+    }
+    .card {
+        padding: 1.5rem;
+    }
+    .auth-card {
+        padding: 1.5rem 1rem;
+    }
+    .auth-title {
+        font-size: 1.8rem;
+    }
+    #messages li {
+        max-width: 90%;
+        padding: 0.7rem 1rem;
+    }
+}

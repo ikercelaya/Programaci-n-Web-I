@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat en Tiempo Real</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header class="app-header">
+        
+        <div class="header-left">
+            <div class="logo"><i class="fas fa-shopping-basket"></i> Portal</div>
+            <ul class="nav-links">
+                <li><a href="/" id="products-link">Productos</a></li>
+                <li><a href="/chat.html" id="chat-link" style="display:none;">Chat</a></li>
+            </ul>
+        </div>
+        
+        <div class="header-right">
+            <div id="guest-nav">
+                <button id="show-login-btn" class="btn btn-outline">Iniciar Sesión</button>
+                <button id="show-register-btn" class="btn btn-primary">Registrarse</button>
+            </div>
+            <div id="user-nav" style="display:none;">
+                <span id="welcome-msg"></span>
+                <button id="logout-btn" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="chat-page">
+            <h2 class="page-title">Chat de la Comunidad</h2>
+            <div class="card">
+                <div id="chat-container">
+                    <ul id="messages">
+                        </ul>
+                </div>
+                <form id="chat-form">
+                    <input id="chat-input" class="form-control" autocomplete="off" placeholder="Escribe un mensaje..." required />
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>
